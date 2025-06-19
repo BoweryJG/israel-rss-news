@@ -22,17 +22,14 @@ export default function Home() {
       if (selectedSource) params.append('source', selectedSource)
       if (selectedCountry) params.append('country', selectedCountry)
       
-      console.log('Fetching news from API...')
       const response = await fetch(`/api/news?${params}`)
       
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('API Error:', response.status, errorText)
         throw new Error(`Failed to fetch news: ${response.status}`)
       }
       
       const data = await response.json()
-      console.log('Received data:', data)
       
       // Convert date strings back to Date objects
       const processedData = {
@@ -44,7 +41,6 @@ export default function Home() {
       }
       setData(processedData)
     } catch (err) {
-      console.error('Fetch error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)

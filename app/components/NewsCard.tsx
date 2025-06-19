@@ -8,7 +8,16 @@ interface NewsCardProps {
   article: NewsArticle
 }
 
+interface SafeArticle extends Omit<NewsArticle, 'pubDate'> {
+  pubDate: Date | string
+}
+
 export default function NewsCard({ article }: NewsCardProps) {
+  // Ensure article is safe to render
+  const safeArticle: SafeArticle = {
+    ...article,
+    pubDate: article.pubDate instanceof Date ? article.pubDate : new Date(article.pubDate)
+  }
   const getBiasColor = (bias?: string) => {
     switch (bias) {
       case 'left':
@@ -41,11 +50,11 @@ export default function NewsCard({ article }: NewsCardProps) {
 
   return (
     <article className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-      {article.imageUrl && typeof article.imageUrl === 'string' && (
+      {safeArticle.imageUrl && typeof safeArticle.imageUrl === 'string' && (
         <div className="relative h-48 w-full">
           <Image
-            src={article.imageUrl}
-            alt={article.title}
+            src={safeArticle.imageUrl}
+            alt={safeArticle.title}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -61,49 +70,49 @@ export default function NewsCard({ article }: NewsCardProps) {
       <div className="p-6">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${getCountryColor(article.source.country)}`} />
+            <span className={`h-2 w-2 rounded-full ${getCountryColor(safeArticle.source.country)}`} />
             <span className="text-sm font-medium text-gray-600">
-              {article.source.name}
+              {safeArticle.source.name}
             </span>
           </div>
-          {article.source.bias && (
-            <span className={`text-xs px-2 py-1 rounded-full ${getBiasColor(article.source.bias)}`}>
-              {article.source.bias}
+          {safeArticle.source.bias && (
+            <span className={`text-xs px-2 py-1 rounded-full ${getBiasColor(safeArticle.source.bias)}`}>
+              {safeArticle.source.bias}
             </span>
           )}
         </div>
         
         <h2 className="text-xl font-bold mb-2 line-clamp-2">
           <a 
-            href={article.link} 
+            href={safeArticle.link} 
             target="_blank" 
             rel="noopener noreferrer"
             className="hover:text-blue-600 transition-colors"
           >
-            {article.title}
+            {safeArticle.title}
           </a>
         </h2>
         
-        {article.description && (
+        {safeArticle.description && (
           <p className="text-gray-600 mb-4 line-clamp-3">
-            {article.description}
+            {safeArticle.description}
           </p>
         )}
         
         <div className="flex items-center justify-between text-sm text-gray-500">
-          <time dateTime={article.pubDate.toISOString()}>
-            {format(article.pubDate, 'MMM d, yyyy h:mm a')}
+          <time dateTime={safeArticle.pubDate instanceof Date ? safeArticle.pubDate.toISOString() : new Date(safeArticle.pubDate).toISOString()}>
+            {format(safeArticle.pubDate instanceof Date ? safeArticle.pubDate : new Date(safeArticle.pubDate), 'MMM d, yyyy h:mm a')}
           </time>
-          {article.author && (
+          {safeArticle.author && (
             <span className="truncate max-w-[150px]">
-              By {article.author}
+              By {safeArticle.author}
             </span>
           )}
         </div>
         
-        {article.categories && article.categories.length > 0 && (
+        {safeArticle.categories && safeArticle.categories.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1">
-            {article.categories.slice(0, 3).map((category, index) => (
+            {safeArticle.categories.slice(0, 3).map((category, index) => (
               <span 
                 key={index}
                 className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"

@@ -8,14 +8,11 @@ let cachedData: AggregatedNews | null = null
 let cacheTimestamp: number = 0
 
 export async function GET(request: NextRequest) {
-  console.log('News API called')
   try {
     const searchParams = request.nextUrl.searchParams
     const sourceFilter = searchParams.get('source')
     const countryFilter = searchParams.get('country')
     const limit = parseInt(searchParams.get('limit') || '50')
-    
-    console.log('Filters:', { sourceFilter, countryFilter, limit })
     
     // Check cache
     const now = Date.now()
@@ -47,9 +44,7 @@ export async function GET(request: NextRequest) {
       ? NEWS_SOURCES.filter(s => s.country === countryFilter)
       : NEWS_SOURCES
     
-    console.log('Fetching from sources:', sourcesToFetch.map(s => s.name))
     const articles = await parseMultipleFeeds(sourcesToFetch)
-    console.log('Fetched articles:', articles.length)
     
     // Update cache with full data
     if (!sourceFilter && !countryFilter) {
