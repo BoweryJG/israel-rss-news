@@ -13,11 +13,12 @@ interface SafeArticle extends Omit<NewsArticle, 'pubDate'> {
 }
 
 export default function NewsCard({ article }: NewsCardProps) {
-  // Ensure article is safe to render
-  const safeArticle: SafeArticle = {
-    ...article,
-    pubDate: article.pubDate instanceof Date ? article.pubDate : new Date(article.pubDate)
-  }
+  try {
+    // Ensure article is safe to render
+    const safeArticle: SafeArticle = {
+      ...article,
+      pubDate: article.pubDate instanceof Date ? article.pubDate : new Date(article.pubDate)
+    }
   const getBiasColor = (bias?: string) => {
     switch (bias) {
       case 'left':
@@ -125,4 +126,12 @@ export default function NewsCard({ article }: NewsCardProps) {
       </div>
     </article>
   )
+  } catch (error) {
+    console.error('Error rendering NewsCard:', error, article)
+    return (
+      <article className="bg-white rounded-lg shadow-md p-6">
+        <p className="text-red-600">Error displaying article</p>
+      </article>
+    )
+  }
 }

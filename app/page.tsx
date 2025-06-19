@@ -31,12 +31,23 @@ export default function Home() {
       
       const data = await response.json()
       
-      // Convert date strings back to Date objects
+      // Convert date strings back to Date objects and ensure all data is serializable
       const processedData = {
         ...data,
         articles: (data.articles || []).map((article: any) => ({
           ...article,
-          pubDate: new Date(article.pubDate)
+          pubDate: new Date(article.pubDate),
+          // Ensure all string fields are actually strings
+          title: String(article.title || ''),
+          link: String(article.link || ''),
+          description: article.description ? String(article.description) : undefined,
+          content: article.content ? String(article.content) : undefined,
+          author: article.author ? String(article.author) : undefined,
+          imageUrl: article.imageUrl ? String(article.imageUrl) : undefined,
+          // Ensure categories is an array of strings
+          categories: Array.isArray(article.categories) 
+            ? article.categories.map((cat: any) => String(cat))
+            : []
         }))
       }
       setData(processedData)

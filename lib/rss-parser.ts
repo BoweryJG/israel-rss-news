@@ -43,11 +43,17 @@ function extractImageUrl(item: FeedItem): string | undefined {
   // Try different ways to extract image URL
   try {
     if (item['media:content'] && Array.isArray(item['media:content'])) {
-      const image = item['media:content'].find((media: any) => 
-        media.$ && media.$.type && media.$.type.startsWith('image/')
-      )
-      if (image && image.$ && image.$.url) {
-        return image.$.url
+      const image = item['media:content'].find((media: any) => {
+        // Handle both object and string formats
+        if (typeof media === 'string') return false
+        if (media.$ && media.$.type && media.$.type.startsWith('image/')) return true
+        if (media.type && media.type.startsWith('image/')) return true
+        return false
+      })
+      if (image) {
+        if (typeof image === 'string') return image
+        if (image.$ && image.$.url) return image.$.url
+        if (image.url) return image.url
       }
     }
     
@@ -119,7 +125,9 @@ export async function parseFeed(source: NewsSource): Promise<FeedResponse> {
         pubDate: new Date(item.pubDate || item.isoDate || Date.now()),
         source: source,
         author: item.creator || item.author,
-        categories: item.categories || [],
+        categories: Array.isArray(item.categories) 
+          ? item.categories.filter((cat: any) => typeof cat === 'string')
+          : [],
         imageUrl: extractImageUrl(item)
       }))
     

@@ -18,6 +18,8 @@ export default function SourceFilter({
   onSourceChange,
   onCountryChange
 }: SourceFilterProps) {
+  // Ensure sources is always an array
+  const safeSources = Array.isArray(sources) ? sources : []
   const [isExpanded, setIsExpanded] = useState(false)
 
   const countries = [
@@ -41,8 +43,8 @@ export default function SourceFilter({
   }
 
   const filteredSources = selectedCountry
-    ? sources.filter(s => s.country === selectedCountry)
-    : sources
+    ? safeSources.filter(s => s.country === selectedCountry)
+    : safeSources
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
