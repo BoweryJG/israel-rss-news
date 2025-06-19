@@ -26,7 +26,15 @@ export default function Home() {
       if (!response.ok) throw new Error('Failed to fetch news')
       
       const data = await response.json()
-      setData(data)
+      // Convert date strings back to Date objects
+      const processedData = {
+        ...data,
+        articles: data.articles.map((article: any) => ({
+          ...article,
+          pubDate: new Date(article.pubDate)
+        }))
+      }
+      setData(processedData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
