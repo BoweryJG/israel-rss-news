@@ -61,7 +61,11 @@ export async function GET(request: NextRequest) {
     const limitedArticles = articles.slice(0, limit)
     
     const response: AggregatedNews = {
-      articles: limitedArticles,
+      articles: limitedArticles.map(article => ({
+        ...article,
+        // Ensure imageUrl is a string or undefined
+        imageUrl: typeof article.imageUrl === 'string' ? article.imageUrl : undefined
+      })),
       sources: sourcesToFetch,
       lastUpdated: new Date(),
       totalCount: limitedArticles.length

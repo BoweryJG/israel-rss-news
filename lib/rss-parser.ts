@@ -41,21 +41,47 @@ interface FeedItem {
 
 function extractImageUrl(item: FeedItem): string | undefined {
   // Try different ways to extract image URL
-  if (item['media:content'] && Array.isArray(item['media:content'])) {
-    const image = item['media:content'].find((media: any) => 
-      media.$ && media.$.type && media.$.type.startsWith('image/')
-    )
-    if (image && image.$ && image.$.url) {
-      return image.$.url
+  try {
+    if (item['media:content'] && Array.isArray(item['media:content'])) {
+      const image = item['media:content'].find((media: any) => 
+        media.$ && media.$.type && media.$.type.startsWith('image/')
+      )
+      if (image && image.$ && image.$.url) {
+        return image.$.url
+      }
     }
-  }
-  
-  if (item['media:thumbnail'] && item['media:thumbnail'].$ && item['media:thumbnail'].$.url) {
-    return item['media:thumbnail'].$.url
-  }
-  
-  if (item.enclosure && item.enclosure.type && item.enclosure.type.startsWith('image/') && item.enclosure.url) {
-    return item.enclosure.url
+    
+    if (item['media:thumbnail']) {
+      // Handle both object and string formats
+      if (typeof item['media:thumbnail'] === 'string') {
+        return item['media:thumbnail']
+      }
+      if (item['media:thumbnail'].$ && item['media:thumbnail'].$.url) {
+        return item['media:thumbnail'].$.url
+      }
+      if (item['media:thumbnail'].url) {
+        return item['media:thumbnail'].url
+      }
+    }
+    
+    if (item.enclosure) {
+      // Handle both object and string formats
+      if (typeof item.enclosure === 'string') {
+        return item.enclosure
+      }
+      if (item.enclosure.type && item.enclosure.type.startsWith('image/') && item.enclosure.url) {
+        return item.enclosure.url
+      }
+      if (item.enclosure.url && !item.enclosure.type) {
+        // Sometimes the type is missing, check if URL looks like an image
+        const url = item.enclosure.url
+        if (url.match(/\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i)) {
+          return url
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error extracting image URL:', error, item)
   }
   
   // Extract from content

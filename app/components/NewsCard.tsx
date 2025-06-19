@@ -41,7 +41,7 @@ export default function NewsCard({ article }: NewsCardProps) {
 
   return (
     <article className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-      {article.imageUrl && (
+      {article.imageUrl && typeof article.imageUrl === 'string' && (
         <div className="relative h-48 w-full">
           <Image
             src={article.imageUrl}
@@ -49,6 +49,11 @@ export default function NewsCard({ article }: NewsCardProps) {
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onError={(e) => {
+              // Hide image on error
+              const target = e.target as HTMLImageElement
+              target.style.display = 'none'
+            }}
           />
         </div>
       )}
