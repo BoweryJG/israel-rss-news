@@ -106,7 +106,9 @@ function isRelevantArticle(title: string, description?: string, content?: string
 
 export async function parseFeed(source: NewsSource): Promise<FeedResponse> {
   try {
+    console.log(`Parsing feed from ${source.name}: ${source.feedUrl}`)
     const feed = await parser.parseURL(source.feedUrl)
+    console.log(`Successfully parsed ${feed.items.length} items from ${source.name}`)
     
     const articles: NewsArticle[] = feed.items
       .filter((item: FeedItem) => isRelevantArticle(item.title || '', item.contentSnippet, item.content))
