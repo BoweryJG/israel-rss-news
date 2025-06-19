@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import NewsCard from './components/NewsCard'
 import SourceFilter from './components/SourceFilter'
+import LoadingSkeleton from './components/LoadingSkeleton'
 import { AggregatedNews } from '@/types/news'
 import { REFRESH_INTERVAL } from '@/lib/constants'
 
@@ -91,9 +92,13 @@ export default function Home() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl shadow-xl p-8 mb-8 animate-pulse">
+          <div className="h-32 bg-slate-700 rounded-lg"></div>
         </div>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-8">
+          <div className="h-14 bg-slate-200 rounded-lg"></div>
+        </div>
+        <LoadingSkeleton />
       </div>
     )
   }
@@ -116,48 +121,70 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Stats Bar */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-6 text-sm">
-            <span className="text-gray-600">
-              <strong className="text-gray-900">{data?.totalCount || 0}</strong> articles
-            </span>
-            <span className="text-gray-600">
-              <strong className="text-gray-900">{data?.sources.length || 0}</strong> sources
-            </span>
-            <span className="text-gray-600">
-              Last updated: <strong className="text-gray-900">
-                {data?.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : 'Never'}
-              </strong>
-            </span>
+      {/* Hero Stats Section */}
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl shadow-xl p-8 mb-8 text-white">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="text-center">
+            <div className="text-4xl font-bold mb-1">{data?.totalCount || 0}</div>
+            <div className="text-slate-300 text-sm">Total Articles</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold mb-1">{data?.sources.length || 0}</div>
+            <div className="text-slate-300 text-sm">News Sources</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold mb-1">
+              {data?.articles ? data.articles.filter(a => a.source.country === 'israel').length : 0}
+            </div>
+            <div className="text-slate-300 text-sm">Israeli Sources 🇮🇱</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold mb-1">
+              {data?.articles ? data.articles.filter(a => a.source.country === 'iran').length : 0}
+            </div>
+            <div className="text-slate-300 text-sm">Iranian Sources 🇮🇷</div>
+          </div>
+        </div>
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-slate-400">
+            Last updated: {data?.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : 'Never'}
           </div>
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-3 bg-white text-slate-900 rounded-lg font-medium hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
           >
             {isRefreshing ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-slate-900"></div>
                 Refreshing...
               </>
             ) : (
-              'Refresh Now'
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh Now
+              </>
             )}
           </button>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search articles..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 mb-8">
+        <div className="relative">
+          <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search articles by title, description, or source..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+          />
+        </div>
       </div>
 
       {/* Filters */}
