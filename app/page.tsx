@@ -51,6 +51,7 @@ export default function Home() {
     fetchNews()
     const interval = setInterval(fetchNews, REFRESH_INTERVAL)
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSource, selectedCountry])
 
   const filteredArticles = data?.articles.filter(article => {

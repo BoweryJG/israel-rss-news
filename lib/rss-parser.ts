@@ -11,6 +11,8 @@ const parser = new Parser({
       ['enclosure', 'enclosure'],
       ['dc:creator', 'creator'],
       ['author', 'author'],
+      ['description', 'description'],
+      ['content:encoded', 'content:encoded'],
     ]
   }
 })
@@ -20,7 +22,24 @@ function generateArticleId(title: string, link: string, source: string): string 
   return crypto.createHash('md5').update(content).digest('hex')
 }
 
-function extractImageUrl(item: any): string | undefined {
+interface FeedItem {
+  title?: string
+  link?: string
+  pubDate?: string
+  isoDate?: string
+  creator?: string
+  author?: string
+  content?: string
+  contentSnippet?: string
+  description?: string
+  categories?: string[]
+  'media:content'?: any
+  'media:thumbnail'?: any
+  enclosure?: any
+  'content:encoded'?: string
+}
+
+function extractImageUrl(item: FeedItem): string | undefined {
   // Try different ways to extract image URL
   if (item['media:content'] && Array.isArray(item['media:content'])) {
     const image = item['media:content'].find((media: any) => 
@@ -64,13 +83,13 @@ export async function parseFeed(source: NewsSource): Promise<FeedResponse> {
     const feed = await parser.parseURL(source.feedUrl)
     
     const articles: NewsArticle[] = feed.items
-      .filter(item => isRelevantArticle(item.title || '', item.contentSnippet, item.content))
-      .map(item => ({
+      .filter((item: FeedItem) => isRelevantArticle(item.title || '', item.contentSnippet, item.content))
+      .map((item: FeedItem) => ({
         id: generateArticleId(item.title || '', item.link || '', source.id),
         title: item.title || 'Untitled',
         link: item.link || '',
         description: item.contentSnippet || item.description,
-        content: item.content,
+        content: item.content || item['content:encoded'],
         pubDate: new Date(item.pubDate || item.isoDate || Date.now()),
         source: source,
         author: item.creator || item.author,
